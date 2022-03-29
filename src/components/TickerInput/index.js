@@ -11,7 +11,7 @@ const TickerInput = ({ onInputChange, inputValues }) => {
         <label htmlFor="text">Ticker text</label>
         <input
           onChange={inputChangeHandler}
-          placeholder="Ticker text"
+          placeholder="Please enter the text"
           type="text"
           name="text"
           value={inputValues.text}
@@ -21,7 +21,7 @@ const TickerInput = ({ onInputChange, inputValues }) => {
         <label htmlFor="text">Ticker width</label>
         <input
           onChange={inputChangeHandler}
-          placeholder="Ticker width"
+          placeholder="Use css metrics"
           type="text"
           name="width"
           value={inputValues.width}
