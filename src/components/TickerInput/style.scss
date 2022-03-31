@@ -1,21 +1,43 @@
 .ticker-input {
   > div {
     margin: 8px 0;
+    box-sizing: border-box;
+    display: flex;
 
-    > label {
-      font-weight: bold;
-    }
-
-    > input {
-      flex-grow: 1;
-      box-sizing: border-box;
-      padding: 10px 6px;
-      background: transparent;
-      border: 1px solid #aaa;
+    > div {
       width: 100%;
-      font-size: 1em;
-      margin-right: 16px;
-      margin-top: 4px;
+
+      > label {
+        font-weight: bold;
+      }
+
+      > input {
+        flex-grow: 1;
+        box-sizing: border-box;
+        padding: 10px 6px;
+        background: transparent;
+        border: 1px solid #aaa;
+        width: 100%;
+        font-size: 1em;
+        margin-right: 16px;
+        margin-top: 4px;
+      }
+
+      > .button {
+        font-weight: bold;
+        font-size: 1em;
+        padding: 5px;
+        border: none;
+        cursor: pointer;
+
+        box-shadow: 0 3px 3px rgba(34, 25, 25, 0.4);
+        color: white;
+        background-color: #62807e;
+
+        &:focus {
+          outline: 0;
+        }
+      }
     }
   }
 }

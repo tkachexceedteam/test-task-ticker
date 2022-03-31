@@ -1,41 +1,49 @@
 import { useEffect, useRef, useState } from "react";
+import { getTextMultiplier } from "../../helpers";
 import Keyframes from "../Keyframes";
 import "./style.scss";
 
-const TickerOutput = ({ text, width }) => {
-  const settings = {
-    animationDuration: 10000,
-  };
-
+const TickerOutput = (props) => {
+  const {
+    text = "Example text.",
+    width = "100%",
+    height = "2em",
+    animationDuration = 10000,
+    animationTimingFunction = "linear",
+    revers = false,
+    verticalOrientation = false,
+    fulfill = false,
+    wrap = false,
+  } = props;
   const textRef = useRef(null);
   const wholeOutputRef = useRef(null);
   const stringRef = useRef(null);
 
   const [arrayOfText, setArrayOfText] = useState([text]);
+  const [textWidth, setTextWidth] = useState(0);
   const [stringWidth, setStringWidth] = useState(0);
+  const [wholeOutputWidth, setWholeOutputWidth] = useState(0);
 
-  const getTextMultiplier = () => {
-    if (
-      textRef.current &&
-      wholeOutputRef.current &&
-      textRef.current.offsetWidth !== 0 &&
-      wholeOutputRef.current.offsetWidth !== 0
-    ) {
-      const multi = Math.round(
-        wholeOutputRef.current.offsetWidth / textRef.current.offsetWidth
+  useEffect(() => {
+    if (fulfill)
+      setArrayOfText(
+        new Array(getTextMultiplier(textRef, wholeOutputRef)).fill(text)
       );
-      return multi > 0 ? multi : 1;
-    }
-  };
+  }, [text, width, fulfill]);
 
   useEffect(() => {
-    setArrayOfText(new Array(getTextMultiplier()).fill(text));
-  }, [text, width]);
-
-  useEffect(() => {
+    if (textRef?.current?.offsetWidth > 0)
+      setTextWidth(textRef.current.offsetWidth);
     if (stringRef?.current?.offsetWidth > 0)
       setStringWidth(stringRef.current.offsetWidth);
-  }, [arrayOfText]);
+    if (wholeOutputRef?.current?.offsetWidth > 0)
+      setWholeOutputWidth(wholeOutputRef.current.offsetWidth);
+    console.log({
+      T: textRef?.current?.offsetWidth,
+      S: stringRef?.current?.offsetWidth,
+      W: wholeOutputRef?.current?.offsetWidth,
+    });
+  }, [props, arrayOfText]);
 
   const textExpander = () => {
     return (
@@ -46,33 +54,52 @@ const TickerOutput = ({ text, width }) => {
     );
   };
 
+  const getAnimationStart = () => {
+    return revers ? -stringWidth : wholeOutputWidth;
+  };
+
+  const getAnimationEnd = () => {
+    if (fulfill || stringWidth > wholeOutputWidth) {
+      return revers ? stringWidth : -(2 * stringWidth - wholeOutputWidth);
+    }
+    return revers ? 2 * wholeOutputWidth - stringWidth : -wholeOutputWidth;
+  };
+
+  const getStringStyle = (isOriginal) => {
+    const style = {};
+    style.position = isOriginal ? "relative" : "absolute";
+    style.whiteSpace = wrap ? "normal" : "pre";
+    style.animationTimingFunction = animationTimingFunction;
+    style.animationDuration = `${animationDuration}ms`;
+    if (!isOriginal) style.animationDelay = `${animationDuration / 2}ms`;
+
+    return style;
+  };
+
   return (
-    <div style={{ width }} ref={wholeOutputRef} className="ticker-output">
+    <div
+      style={{ width, height }}
+      ref={wholeOutputRef}
+      className="ticker-output"
+    >
       <Keyframes
         name="ticker"
-        from={{ left: `${stringWidth}px`, opacity: 1 }}
-        to={{ left: `${-stringWidth}px`, opacity: 1 }}
+        from={{ left: `${getAnimationStart()}px` }}
+        to={{ left: `${getAnimationEnd()}px` }}
       />
 
       <div
-        style={{
-          animationDuration: `${settings.animationDuration}ms`,
-        }}
         ref={stringRef}
+        style={getStringStyle(false)}
         className="ticker-string"
       >
         <span ref={textRef}>{text.trim() + " "}</span>
-        {textExpander()}
+        {fulfill && arrayOfText.length > 0 && textExpander()}
       </div>
-      <div
-        style={{
-          animationDuration: `${settings.animationDuration}ms`,
-          animationDelay: `${settings.animationDuration / 2}ms`,
-        }}
-        className="ticker-string"
-      >
+
+      <div style={getStringStyle(true)} className="ticker-string">
         <span>{text.trim() + " "}</span>
-        {textExpander()}
+        {fulfill && arrayOfText.length > 0 && textExpander()}
       </div>
     </div>
   );
